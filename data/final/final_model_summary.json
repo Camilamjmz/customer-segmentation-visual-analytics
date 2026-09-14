@@ -1,0 +1,52 @@
+{
+  "algorithm": "K-Means",
+  "k": 3,
+  "preprocessing_strategy": "log_standard",
+  "clustering_features": [
+    "Recency",
+    "Frequency",
+    "MonetaryValue",
+    "UniqueProducts",
+    "CustomerLifetimeDays"
+  ],
+  "random_state": 42,
+  "n_init": 20,
+  "customer_count": 5878,
+  "silhouette_score": 0.31104915168375646,
+  "davies_bouldin_score": 1.1229671800563585,
+  "calinski_harabasz_score": 4856.58754912021,
+  "cluster_counts": {
+    "0": 2132,
+    "1": 2226,
+    "2": 1520
+  },
+  "cluster_percentages": {
+    "0": 36.27084042191221,
+    "1": 37.87002381762504,
+    "2": 25.859135760462742
+  },
+  "raw_label_to_stable_segment": {
+    "1": 0,
+    "2": 1,
+    "0": 2
+  },
+  "segment_names": {
+    "0": "Inactive Low-Activity",
+    "1": "Developing / Moderate",
+    "2": "Recent High-Activity"
+  },
+  "mapping_method": "Highest median Frequency is Recent High-Activity; among remaining clusters, highest median Recency is Inactive Low-Activity; the remaining cluster is Developing / Moderate.",
+  "validation_summary": {
+    "random_initialization_stability_ari": 0.9898763237934856,
+    "subsampling_mean_ari": 0.9800658118964514,
+    "feature_sensitivity_ari": 0.7749890000819621,
+    "full_customer_coverage": true
+  },
+  "selected_model_rationale": "Best full-coverage internal metrics, balanced interpretable groups, strong subsampling stability, and greater parsimony than k=4.",
+  "sensitivity_model_information": {
+    "algorithm": "K-Means",
+    "preprocessing_strategy": "log_standard",
+    "k": 4,
+    "role": "Sensitivity model only; it adds a recent low-frequency segment."
+  }
+}

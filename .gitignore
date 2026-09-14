@@ -1,0 +1,39 @@
+# Node dependencies and Vite output
+node_modules/
+dist/
+.vite/
+
+# Python virtual environments
+.venv/
+venv/
+env/
+
+# Python cache files
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Notebook local checkpoints
+.ipynb_checkpoints/
+
+# Raw UCI workbook (download separately; see README)
+data/online_retail_II.xlsx
+data/raw/online_retail_II.xlsx
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# IDE files
+.idea/
+.vscode/
+*.suo
+*.user
+
+# Operating system files
+.DS_Store
+Thumbs.db
+Desktop.ini

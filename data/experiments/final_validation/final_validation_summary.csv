@@ -1,0 +1,3 @@
+candidate,internal_quality,cluster_balance,interpretability,random_initialization_stability_ari,subsampling_mean_ari,feature_sensitivity_ari,full_customer_coverage,simplicity_parsimony,decision_position
+K-Means log_standard k=3,silhouette=0.3110; DB=1.1230; CH=4856.59,smallest=25.86%; largest=37.87%,three broad activity levels,0.9898763237934856,0.9800658118964514,0.7749890000819621,True,stronger,recommended
+K-Means log_standard k=4,silhouette=0.2935; DB=1.1303; CH=4343.73,smallest=20.07%; largest=33.41%,adds recent low-frequency separation,0.995908131585851,0.9613590666153995,0.8858385957542388,True,weaker: one additional segment,sensitivity candidate

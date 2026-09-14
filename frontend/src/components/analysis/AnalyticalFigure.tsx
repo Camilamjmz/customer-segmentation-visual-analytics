@@ -1,0 +1,5 @@
+import type { ReactNode } from 'react'
+
+export function AnalyticalFigure({ id, title, description, children, keyFinding, interpretation, howToRead, limitation }: { id: string; title: string; description: string; children: ReactNode; keyFinding: string; interpretation: string; howToRead?: string; limitation?: string }) {
+  return <section className="analytical-figure" aria-labelledby={`${id}-title`}><div className="analytical-figure__header"><h2 id={`${id}-title`}>{title}</h2><p id={`${id}-description`}>{description}</p></div><div className="analytical-figure__visual" role="img" aria-labelledby={`${id}-title`} aria-describedby={`${id}-description ${id}-finding`}>{children}</div><div className="key-finding"><p className="key-finding__label">Key finding</p><p id={`${id}-finding`}>{keyFinding}</p></div><details className="analysis-details"><summary>Detailed analysis</summary><div className="analysis-details__content"><div><h3>Interpretation</h3><p>{interpretation}</p></div>{howToRead && <div><h3>How to read this chart</h3><p>{howToRead}</p></div>}{limitation && <div><h3>Limitation</h3><p>{limitation}</p></div>}</div></details></section>
+}

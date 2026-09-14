@@ -1,0 +1,34 @@
+import createPlotlyComponent from 'react-plotly.js/factory'
+import Plotly from 'plotly.js-cartesian-dist-min'
+import { segmentColors } from '../../constants/design'
+import type { SegmentSummary } from '../../types/overview'
+import type { CustomerRecord, SegmentDistribution } from '../../types/segmentation'
+
+const Plot = createPlotlyComponent(Plotly)
+const colors = [segmentColors.inactive, segmentColors.developing, segmentColors.recent]
+const symbols = ['circle', 'square', 'diamond']
+const font = { family: 'Inter, ui-sans-serif, system-ui, sans-serif', color: '#526071', size: 12 }
+const config = { responsive: true, displaylogo: false, editable: false, scrollZoom: true, modeBarButtonsToRemove: ['lasso2d', 'select2d', 'toImage'] as never[] }
+
+export function CustomerScatter({ customers, view }: { customers: CustomerRecord[]; view: 'frequency' | 'recency' }) {
+  const traces = [0, 1, 2].map((segmentId) => {
+    const rows = customers.filter((row) => row.SegmentID === segmentId)
+    const frequency = view === 'frequency'
+    return { type: 'scattergl' as const, mode: 'markers' as const, name: rows[0]?.SegmentName ?? `Segment ${segmentId}`, x: rows.map((row) => frequency ? row.Frequency : row.Recency), y: rows.map((row) => row.MonetaryValue), customdata: rows.map((row) => frequency ? [row.CustomerID, row.SegmentName, row.Country, row.Frequency, row.MonetaryValue, row.Recency, row.TotalItems, row.UniqueProducts, row.AverageOrderValue, row.CustomerLifetimeDays] : [row.CustomerID, row.SegmentName, row.Country, row.Recency, row.MonetaryValue, row.Frequency, row.UniqueProducts, row.CustomerLifetimeDays]), marker: { color: colors[segmentId], symbol: symbols[segmentId], size: 6, opacity: .55 }, hovertemplate: frequency ? '<b>Customer %{customdata[0]}</b><br>%{customdata[1]}<br>Country: %{customdata[2]}<br>Frequency: %{customdata[3]:,}<br>Monetary value: £%{customdata[4]:,.2f}<br>Recency: %{customdata[5]:,} days<br>Total items: %{customdata[6]:,}<br>Unique products: %{customdata[7]:,}<br>Average order value: £%{customdata[8]:,.2f}<br>Lifetime: %{customdata[9]:,} days<extra></extra>' : '<b>Customer %{customdata[0]}</b><br>%{customdata[1]}<br>Country: %{customdata[2]}<br>Recency: %{customdata[3]:,} days<br>Monetary value: £%{customdata[4]:,.2f}<br>Frequency: %{customdata[5]:,}<br>Unique products: %{customdata[6]:,}<br>Lifetime: %{customdata[7]:,} days<extra></extra>' }
+  })
+  return <Plot data={traces} layout={{ autosize: true, height: 540, margin: { l: 75, r: 25, t: 15, b: 70 }, paper_bgcolor: 'rgba(0,0,0,0)', plot_bgcolor: 'rgba(0,0,0,0)', font, legend: { orientation: 'h', y: 1.08, x: 0 }, xaxis: { title: { text: view === 'frequency' ? 'Frequency (orders, logarithmic)' : 'Recency (days; lower is more recent)' }, type: view === 'frequency' ? 'log' : 'linear', gridcolor: '#E7ECF0', zeroline: false }, yaxis: { title: { text: 'Monetary value (GBP, logarithmic)' }, type: 'log', gridcolor: '#E7ECF0', zeroline: false }, hovermode: 'closest' }} config={config} useResizeHandler style={{ width: '100%', height: '540px' }} />
+}
+
+export function ProfileHeatmap({ segments, population }: { segments: SegmentSummary[]; population: Record<string, number> }) {
+  const features = ['Recency', 'Frequency', 'MonetaryValue', 'UniqueProducts', 'CustomerLifetimeDays']
+  const ordered = [...segments].sort((a, b) => a.SegmentID - b.SegmentID)
+  const ratios = features.map((feature) => ordered.map((segment) => population[feature] === 0 ? null : segment.median_profile[feature] / population[feature]))
+  const custom = features.map((feature) => ordered.map((segment) => [segment.median_profile[feature], population[feature], feature === 'Recency' ? 'Lower ratio means more recent activity' : 'Ratio above 1 means above the population median']))
+  return <Plot data={[{ type: 'heatmap', x: ordered.map((segment) => segment.SegmentName), y: features, z: ratios, zmin: 0, zmax: 2.5, colorscale: [[0, '#EEF2F5'], [.4, '#C7D3DC'], [1, '#526D82']], colorbar: { title: { text: 'Median ratio' }, thickness: 12 }, text: ratios.map((row) => row.map((value) => value === null ? 'N/A' : `${value.toFixed(2)}×`)), texttemplate: '%{text}', customdata: custom, hovertemplate: '<b>%{x}</b><br>Feature: %{y}<br>Segment median: %{customdata[0]:,.2f}<br>Population median: %{customdata[1]:,.2f}<br>Ratio: %{z:.2f}×<br>%{customdata[2]}<extra></extra>' }]} layout={{ autosize: true, height: 410, margin: { l: 150, r: 75, t: 15, b: 100 }, paper_bgcolor: 'rgba(0,0,0,0)', plot_bgcolor: 'rgba(0,0,0,0)', font, xaxis: { tickangle: -18 }, yaxis: { autorange: 'reversed' } }} config={{ ...config, scrollZoom: false }} useResizeHandler style={{ width: '100%', height: '410px' }} />
+}
+
+export function QuartileRangeChart({ segments, feature }: { segments: SegmentDistribution[]; feature: string }) {
+  const rows = segments.map((segment) => ({ segment, values: segment.features.find((item) => item.feature === feature)! }))
+  const traces = rows.flatMap(({ segment, values }) => [{ type: 'scatter' as const, mode: 'lines' as const, x: [values.whisker_low, values.whisker_high], y: [segment.SegmentName, segment.SegmentName], line: { color: colors[segment.SegmentID], width: 2 }, showlegend: false, hoverinfo: 'skip' as const }, { type: 'scatter' as const, mode: 'lines+markers' as const, x: [values.q1, values.median, values.q3], y: [segment.SegmentName, segment.SegmentName, segment.SegmentName], line: { color: colors[segment.SegmentID], width: 12 }, marker: { color: ['#FFFFFF', colors[segment.SegmentID], '#FFFFFF'], line: { color: colors[segment.SegmentID], width: 2 }, size: [8, 11, 8], symbol: ['line-ns', symbols[segment.SegmentID], 'line-ns'] }, customdata: [[values.minimum, values.q1, values.median, values.q3, values.maximum, values.mean, values.whisker_low, values.whisker_high, values.outlier_count], [values.minimum, values.q1, values.median, values.q3, values.maximum, values.mean, values.whisker_low, values.whisker_high, values.outlier_count], [values.minimum, values.q1, values.median, values.q3, values.maximum, values.mean, values.whisker_low, values.whisker_high, values.outlier_count]], hovertemplate: '<b>%{y}</b><br>Minimum: %{customdata[0]:,.2f}<br>Q1: %{customdata[1]:,.2f}<br>Median: %{customdata[2]:,.2f}<br>Q3: %{customdata[3]:,.2f}<br>Maximum: %{customdata[4]:,.2f}<br>Mean: %{customdata[5]:,.2f}<br>Whiskers: %{customdata[6]:,.2f} to %{customdata[7]:,.2f}<br>Outliers: %{customdata[8]:,}<extra></extra>', showlegend: false }])
+  return <Plot data={traces} layout={{ autosize: true, height: 350, margin: { l: 165, r: 30, t: 15, b: 60 }, paper_bgcolor: 'rgba(0,0,0,0)', plot_bgcolor: 'rgba(0,0,0,0)', font, showlegend: false, xaxis: { title: { text: feature }, gridcolor: '#E7ECF0', zeroline: false }, yaxis: { autorange: 'reversed' } }} config={{ ...config, scrollZoom: false }} useResizeHandler style={{ width: '100%', height: '350px' }} />
+}
