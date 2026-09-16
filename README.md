@@ -122,6 +122,24 @@ The React application presents the research through six connected sections:
 
 Interpretations are deterministic and based on backend values; the project does not generate analysis using an LLM.
 
+## Screenshots
+
+### Overview
+
+![Overview page](docs/images/overview.png)
+
+### Exploratory Analysis
+
+![Exploratory Analysis page](docs/images/eda.png)
+
+### Customer Segmentation
+
+![Customer Segmentation page](docs/images/segmentation.png)
+
+### Model Evaluation
+
+![Model Evaluation page](docs/images/model-evaluation.png)
+
 ## Technology stack
 
 | Layer | Technologies |
@@ -267,19 +285,6 @@ Verify frontend TypeScript compilation and the production bundle with:
 cd frontend
 npm run build
 ```
-
-## Screenshots
-
-Screenshots have not yet been committed. Future captures may be added at:
-
-```text
-docs/images/overview.png
-docs/images/eda.png
-docs/images/segmentation.png
-docs/images/model-evaluation.png
-```
-
-When these files exist, this section can be updated with Markdown image references. No fake screenshots are included.
 
 ## Limitations
 
