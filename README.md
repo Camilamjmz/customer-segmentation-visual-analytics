@@ -245,6 +245,47 @@ npm run dev
 
 Open <http://localhost:5173>. Keep the backend running on port 8000 so analytical content can load.
 
+## Deployment preparation
+
+The intended deployment separates the read-only API from the static single-page application. No public deployment URLs are documented until those services exist.
+
+### Render backend
+
+Create a Python web service from this repository with:
+
+| Setting | Value |
+| --- | --- |
+| Root directory | `backend` |
+| Build command | `pip install -r requirements.txt` |
+| Start command | `uvicorn app.main:app --host 0.0.0.0 --port $PORT` |
+| Health check path | `/health` |
+
+Set the following environment variable after the Vercel production URL exists:
+
+```text
+FRONTEND_ORIGINS=https://your-vercel-production-domain.example
+```
+
+`FRONTEND_ORIGINS` accepts a comma-separated list when more than one deployed frontend origin is required. Local development at `http://localhost:5173` remains enabled without configuration. No database credentials, API keys, or raw workbook are required at runtime.
+
+### Vercel frontend
+
+Create a Vite project from the same repository with:
+
+| Setting | Value |
+| --- | --- |
+| Root directory | `frontend` |
+| Build command | `npm run build` |
+| Output directory | `dist` |
+
+Set the frontend API origin to the eventual Render service URL:
+
+```text
+VITE_API_BASE_URL=https://your-render-service.example
+```
+
+The value should not end with a slash. [`frontend/vercel.json`](frontend/vercel.json) rewrites direct requests to `index.html`, allowing React Router routes to load correctly after navigation or browser refresh.
+
 ## API overview
 
 All analytical endpoints are read-only.
